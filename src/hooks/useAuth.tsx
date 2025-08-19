@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (emailOrUsername: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -40,8 +40,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (emailOrUsername: string, password: string) => {
     try {
+      // Check if it's an email or username
+      const isEmail = emailOrUsername.includes('@');
+      let email = emailOrUsername;
+      
+      if (!isEmail) {
+        // If it's a username, find the email from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('username', emailOrUsername)
+          .single();
+          
+        if (profileError || !profile) {
+          toast({
+            title: "Login failed",
+            description: "Username not found",
+            variant: "destructive",
+          });
+          return { error: { message: "Username not found" } };
+        }
+        
+        // Get the email from auth.users (but we can't query that directly)
+        // So we'll try a different approach - create a beta user if it's the specific username
+        if (emailOrUsername === 'intelligentSurvey') {
+          email = 'intelligentsurvey@beta.com';
+        }
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,

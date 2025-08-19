@@ -11,7 +11,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
-  const [email, setEmail] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
@@ -20,7 +20,7 @@ export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(emailOrUsername, password);
     
     if (!error) {
       // Redirect will be handled by auth state change
@@ -38,14 +38,14 @@ export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="emailOrUsername">Email or Username</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="emailOrUsername"
+              type="text"
+              value={emailOrUsername}
+              onChange={(e) => setEmailOrUsername(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Enter your email or username"
             />
           </div>
           <div className="space-y-2">
