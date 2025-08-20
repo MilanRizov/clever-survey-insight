@@ -7,6 +7,10 @@ import { SortableQuestion } from './SortableQuestion';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Question {
   id: string;
@@ -18,10 +22,13 @@ export interface Question {
 }
 
 export const SurveyBuilder = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [surveyTitle, setSurveyTitle] = useState('Untitled Survey');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -92,6 +99,53 @@ export const SurveyBuilder = () => {
     setQuestions(prev => prev.filter(q => q.id !== id));
   };
 
+  const saveSurvey = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save a survey",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!surveyTitle.trim()) {
+      toast({
+        title: "Error", 
+        description: "Please enter a survey title",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('surveys')
+        .insert({
+          user_id: user.id,
+          title: surveyTitle.trim(),
+          questions: questions as any,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Survey saved successfully!",
+      });
+    } catch (error) {
+      console.error('Error saving survey:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save survey. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex h-full gap-6">
@@ -108,8 +162,16 @@ export const SurveyBuilder = () => {
           <Card className="p-6 h-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold">Survey Builder</h3>
-              <div className="text-sm text-muted-foreground">
-                {questions.length} question{questions.length !== 1 ? 's' : ''}
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-muted-foreground">
+                  {questions.length} question{questions.length !== 1 ? 's' : ''}
+                </div>
+                <Button 
+                  onClick={saveSurvey}
+                  disabled={isSaving || !surveyTitle.trim()}
+                >
+                  {isSaving ? 'Saving...' : 'Save Survey'}
+                </Button>
               </div>
             </div>
             
