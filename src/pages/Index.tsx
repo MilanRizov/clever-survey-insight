@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { SurveyBuilder } from '@/components/survey/SurveyBuilder';
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
@@ -44,27 +45,16 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-4xl font-bold mb-4">Welcome to IntelligentSurvey</h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Create powerful surveys with AI-powered analysis and automated reporting.
+      <main className="container mx-auto px-4 py-8 h-[calc(100vh-5rem)]">
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold mb-2">Survey Builder</h2>
+          <p className="text-muted-foreground">
+            Create powerful surveys with drag-and-drop question types and AI-powered analysis.
           </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 border border-border rounded-lg bg-card">
-              <h3 className="text-lg font-semibold mb-2">Single Choice</h3>
-              <p className="text-muted-foreground">Perfect for multiple choice questions with one correct answer.</p>
-            </div>
-            <div className="p-6 border border-border rounded-lg bg-card">
-              <h3 className="text-lg font-semibold mb-2">Multiple Choice</h3>
-              <p className="text-muted-foreground">Allow respondents to select multiple options from a list.</p>
-            </div>
-            <div className="p-6 border border-border rounded-lg bg-card">
-              <h3 className="text-lg font-semibold mb-2">Open Text</h3>
-              <p className="text-muted-foreground">Gather detailed responses with AI-powered analysis.</p>
-            </div>
-          </div>
+        </div>
+        
+        <div className="h-[calc(100%-6rem)]">
+          <SurveyBuilder />
         </div>
       </main>
     </div>
