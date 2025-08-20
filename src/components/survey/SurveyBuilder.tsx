@@ -5,6 +5,8 @@ import { QuestionTypePalette } from './QuestionTypePalette';
 import { QuestionCanvas } from './QuestionCanvas';
 import { SortableQuestion } from './SortableQuestion';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export interface Question {
   id: string;
@@ -16,6 +18,7 @@ export interface Question {
 }
 
 export const SurveyBuilder = () => {
+  const [surveyTitle, setSurveyTitle] = useState('Untitled Survey');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
@@ -108,6 +111,19 @@ export const SurveyBuilder = () => {
               <div className="text-sm text-muted-foreground">
                 {questions.length} question{questions.length !== 1 ? 's' : ''}
               </div>
+            </div>
+            
+            <div className="mb-6">
+              <Label htmlFor="survey-title" className="text-sm font-medium">
+                Survey Title
+              </Label>
+              <Input
+                id="survey-title"
+                value={surveyTitle}
+                onChange={(e) => setSurveyTitle(e.target.value)}
+                placeholder="Enter survey title..."
+                className="mt-2"
+              />
             </div>
             
             <SortableContext items={questions.map(q => q.id)} strategy={verticalListSortingStrategy}>
