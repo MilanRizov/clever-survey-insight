@@ -21,11 +21,19 @@ export interface Question {
   required?: boolean;
 }
 
-export const SurveyBuilder = () => {
+interface SurveyBuilderProps {
+  initialSurvey?: {
+    id: string;
+    title: string;
+    questions: Question[];
+  };
+}
+
+export const SurveyBuilder = ({ initialSurvey }: SurveyBuilderProps = {}) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [surveyTitle, setSurveyTitle] = useState('Untitled Survey');
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [surveyTitle, setSurveyTitle] = useState(initialSurvey?.title || 'Untitled Survey');
+  const [questions, setQuestions] = useState<Question[]>(initialSurvey?.questions || []);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -120,19 +128,33 @@ export const SurveyBuilder = () => {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('surveys')
-        .insert({
-          user_id: user.id,
-          title: surveyTitle.trim(),
-          questions: questions as any,
-        });
+      let error;
+      
+      if (initialSurvey?.id) {
+        // Update existing survey
+        ({ error } = await supabase
+          .from('surveys')
+          .update({
+            title: surveyTitle.trim(),
+            questions: questions as any,
+          })
+          .eq('id', initialSurvey.id));
+      } else {
+        // Create new survey
+        ({ error } = await supabase
+          .from('surveys')
+          .insert({
+            user_id: user.id,
+            title: surveyTitle.trim(),
+            questions: questions as any,
+          }));
+      }
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Survey saved successfully!",
+        description: initialSurvey?.id ? "Survey updated successfully!" : "Survey saved successfully!",
       });
     } catch (error) {
       console.error('Error saving survey:', error);

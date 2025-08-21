@@ -196,10 +196,20 @@ const MySurveys = () => {
                           {Array.isArray(survey.questions) ? survey.questions.length : 0} question{Array.isArray(survey.questions) && survey.questions.length !== 1 ? 's' : ''}
                         </p>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => navigate(`/surveys/${survey.id}/preview`)}
+                          >
                             View
                           </Button>
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => navigate(`/surveys/${survey.id}/edit`)}
+                          >
                             Edit
                           </Button>
                         </div>
