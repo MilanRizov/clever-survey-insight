@@ -8,6 +8,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MySurveys from "./pages/MySurveys";
+import Reports from "./pages/Reports";
 import SurveyPreview from "./pages/SurveyPreview";
 import EditSurvey from "./pages/EditSurvey";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<AppLayout><Index /></AppLayout>} />
             <Route path="/surveys" element={<AppLayout><MySurveys /></AppLayout>} />
+            <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
             <Route path="/surveys/:id/preview" element={<AppLayout><SurveyPreview /></AppLayout>} />
             <Route path="/surveys/:id/edit" element={<AppLayout><EditSurvey /></AppLayout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
