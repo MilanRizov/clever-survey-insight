@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText } from 'lucide-react';
+import { FileText, Copy, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Survey {
   id: string;
@@ -18,8 +19,10 @@ interface Survey {
 const MySurveys = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -50,6 +53,27 @@ const MySurveys = () => {
       console.error('Error fetching surveys:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyPublicLink = async (surveyId: string) => {
+    const publicLink = `${window.location.origin}/survey/${surveyId}`;
+    
+    try {
+      await navigator.clipboard.writeText(publicLink);
+      setCopiedId(surveyId);
+      toast({
+        title: "Link copied!",
+        description: "Public survey link copied to clipboard",
+      });
+      
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy link to clipboard",
+        variant: "destructive",
+      });
     }
   };
 
@@ -115,6 +139,28 @@ const MySurveys = () => {
                   <FileText className="h-4 w-4" />
                   {Array.isArray(survey.questions) ? survey.questions.length : 0} questions
                 </div>
+                
+                <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2">Public survey link:</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 text-xs bg-background px-2 py-1 rounded border truncate">
+                      {`${window.location.origin}/survey/${survey.id}`}
+                    </code>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => copyPublicLink(survey.id)}
+                      className="h-8 w-8 p-0"
+                    >
+                      {copiedId === survey.id ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                
                 <div className="flex gap-2">
                   <Button 
                     variant="outline" 
