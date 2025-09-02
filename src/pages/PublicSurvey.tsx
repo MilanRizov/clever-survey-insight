@@ -122,14 +122,19 @@ const PublicSurvey = () => {
 
     setSubmitting(true);
     try {
-      // Simulate response submission (survey_responses table not yet in types)
-      // TODO: Replace with actual supabase insertion once table is in types
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('Survey response submitted:', {
-        survey_id: id,
-        responses: responses,
-      });
+      // Insert response into database
+      const { error } = await supabase
+        .from('survey_responses')
+        .insert({
+          survey_id: id,
+          response_data: responses,
+          ip_address: null, // Could be captured on server-side if needed
+          user_agent: navigator.userAgent
+        });
+
+      if (error) {
+        throw error;
+      }
 
       setSubmitted(true);
       toast({
