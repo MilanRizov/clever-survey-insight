@@ -53,20 +53,35 @@ const Reports = () => {
         return;
       }
 
-      // For now, we'll simulate having responses by showing all surveys
-      // This can be updated when we have actual response data
-      const reportsData: SurveyReport[] = surveys.map(survey => ({
-        id: survey.id,
-        title: survey.title,
-        created_at: survey.created_at,
-        response_count: Math.floor(Math.random() * 50) + 1, // Simulated response count
-        latest_response: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() // Simulated latest response within last week
-      }));
+      // Get actual response counts for each survey
+      const reportsData: SurveyReport[] = await Promise.all(
+        surveys.map(async (survey) => {
+          const { data: responseData, error: responseError } = await supabase
+            .from('survey_responses')
+            .select('id, submitted_at')
+            .eq('survey_id', survey.id);
 
-      // Filter to only show surveys with responses (for simulation, show surveys created more than 1 day ago)
-      const surveysWithResponses = reportsData.filter(survey => 
-        new Date(survey.created_at).getTime() < Date.now() - 24 * 60 * 60 * 1000
+          if (responseError) {
+            console.error('Error fetching responses:', responseError);
+          }
+
+          const responses = responseData || [];
+          const latestResponse = responses.length > 0 
+            ? responses.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())[0].submitted_at
+            : null;
+
+          return {
+            id: survey.id,
+            title: survey.title,
+            created_at: survey.created_at,
+            response_count: responses.length,
+            latest_response: latestResponse || survey.created_at
+          };
+        })
       );
+
+      // Filter to only show surveys with responses
+      const surveysWithResponses = reportsData.filter(survey => survey.response_count > 0);
 
       setReports(surveysWithResponses);
     } catch (error) {

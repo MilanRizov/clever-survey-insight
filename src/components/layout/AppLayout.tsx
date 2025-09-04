@@ -41,7 +41,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { toast } = useToast();
 
   const handleNavigation = (item: typeof menuItems[0]) => {
-    if (item.url === '/' || item.url === '/surveys') {
+    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports') {
       navigate(item.url);
     } else {
       toast({

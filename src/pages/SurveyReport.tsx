@@ -134,7 +134,8 @@ const SurveyReport = () => {
     let totalAnswers = 0;
 
     responses.forEach(response => {
-      const answer = response.response_data[`question_${questionIndex}`];
+      // Use the actual question ID instead of question_${index}
+      const answer = response.response_data[question.id];
       if (answer) {
         if (Array.isArray(answer)) {
           // Handle multiple choice questions
@@ -172,8 +173,8 @@ const SurveyReport = () => {
       const row = [
         response.id,
         new Date(response.submitted_at).toLocaleString(),
-        ...survey.questions.map((_: any, i: number) => {
-          const answer = response.response_data[`question_${i}`];
+        ...survey.questions.map((question: any) => {
+          const answer = response.response_data[question.id];
           return Array.isArray(answer) ? answer.join('; ') : answer || '';
         })
       ];
@@ -394,7 +395,13 @@ const SurveyReport = () => {
                         </h4>
                         <p className="text-sm mb-2">{question.question || question.title}</p>
                         <div className="font-medium">
-                          {response.response_data[`question_${questionIndex}`] || 'No answer'}
+                          {(() => {
+                            const answer = response.response_data[question.id];
+                            if (Array.isArray(answer)) {
+                              return answer.join(', ');
+                            }
+                            return answer || 'No answer';
+                          })()}
                         </div>
                       </div>
                     ))}
