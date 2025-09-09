@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Download, BarChart3, FileText, Calendar, Users, Brain, Heart, Meh, Frown } from 'lucide-react';
+import { SurveyCharts } from '@/components/survey/charts/SurveyCharts';
+import { ResponseTimelineChart } from '@/components/survey/charts/ResponseTimelineChart';
 
 interface Survey {
   id: string;
@@ -410,8 +412,16 @@ const SurveyReport = () => {
                       <CardDescription>{question.question || question.title}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {question.type === 'open-text' ? (
-                        <div className="space-y-6">
+                      {/* Highcharts Integration */}
+                      <SurveyCharts
+                        questionType={question.type}
+                        questionTitle={question.question || question.title}
+                        chartData={chartData}
+                        topicAnalysis={topicAnalysis[question.id]}
+                      />
+                      
+                      {question.type === 'open-text' && (
+                        <div className="mt-6 space-y-6">
                           <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground">
                               {responses.filter(r => r.response_data[question.id]).length} responses
@@ -426,16 +436,16 @@ const SurveyReport = () => {
 
                           {/* Topic Analysis Section */}
                           {topicAnalysis[question.id] && topicAnalysis[question.id].length > 0 && (
-                            <div className="border rounded-lg p-4 bg-blue-50">
-                              <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                            <div className="border rounded-lg p-4 bg-muted/50">
+                              <h4 className="font-semibold mb-3 flex items-center gap-2">
                                 <Brain className="h-4 w-4" />
                                 AI Topic Analysis
                               </h4>
                               <div className="space-y-4">
                                 {topicAnalysis[question.id].map((topic, topicIdx) => (
-                                  <div key={topicIdx} className="bg-white rounded-md p-3 border">
+                                  <div key={topicIdx} className="bg-background rounded-md p-3 border">
                                     <div className="flex items-center justify-between mb-2">
-                                      <h5 className="font-medium text-gray-900">{topic.topic}</h5>
+                                      <h5 className="font-medium">{topic.topic}</h5>
                                       <Badge variant="outline">{topic.count} responses</Badge>
                                     </div>
                                     <div className="space-y-2">
@@ -470,13 +480,13 @@ const SurveyReport = () => {
                           {/* All Responses Section */}
                           <div>
                             <h4 className="font-medium mb-3">All Responses</h4>
-                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
                               {responses
                                 .filter(response => response.response_data[question.id])
                                 .map((response, idx) => (
-                                  <div key={idx} className="p-3 bg-muted rounded-md">
-                                    <p className="text-sm">{response.response_data[question.id]}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                  <div key={idx} className="p-3 bg-muted rounded border">
+                                    <p className="text-sm mb-2">{response.response_data[question.id]}</p>
+                                    <p className="text-xs text-muted-foreground">
                                       {new Date(response.submitted_at).toLocaleDateString()}
                                     </p>
                                   </div>
@@ -484,32 +494,6 @@ const SurveyReport = () => {
                             </div>
                           </div>
                         </div>
-                      ) : chartData.length > 0 ? (
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="font-medium mb-4">Response Distribution</h4>
-                            <div className="space-y-2">
-                              {chartData.map((item) => (
-                                <div key={item.name} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                  <span className="font-medium">{item.name}</span>
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-24 bg-background rounded-full h-2 overflow-hidden">
-                                      <div 
-                                        className="h-full bg-primary rounded-full" 
-                                        style={{ width: `${item.percentage}%` }}
-                                      />
-                                    </div>
-                                    <Badge variant="secondary">
-                                      {item.value} ({item.percentage}%)
-                                    </Badge>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-muted-foreground">No responses for this question yet.</p>
                       )}
                     </CardContent>
                   </Card>
@@ -528,34 +512,36 @@ const SurveyReport = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {responses.map((response, responseIndex) => (
+              {responses.map((response, index) => (
                 <Card key={response.id}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">Response #{responseIndex + 1}</CardTitle>
-                      <Badge variant="secondary">
-                        {new Date(response.submitted_at).toLocaleString()}
+                      <CardTitle className="text-lg">Response {index + 1}</CardTitle>
+                      <Badge variant="outline">
+                        {new Date(response.submitted_at).toLocaleDateString()}
                       </Badge>
                     </div>
+                    <CardDescription>
+                      Submitted on {new Date(response.submitted_at).toLocaleString()}
+                      {response.ip_address && ` from ${response.ip_address}`}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {survey.questions.map((question: any, questionIndex: number) => (
-                      <div key={questionIndex} className="border-l-2 border-muted pl-4">
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                          Question {questionIndex + 1}
-                        </h4>
-                        <p className="text-sm mb-2">{question.question || question.title}</p>
-                        <div className="font-medium">
-                          {(() => {
-                            const answer = response.response_data[question.id];
-                            if (Array.isArray(answer)) {
-                              return answer.join(', ');
-                            }
-                            return answer || 'No answer';
-                          })()}
-                        </div>
-                      </div>
-                    ))}
+                  <CardContent>
+                    <div className="space-y-4">
+                      {survey.questions.map((question: any, qIndex: number) => {
+                        const answer = response.response_data[question.id];
+                        return (
+                          <div key={qIndex} className="border-b pb-3 last:border-b-0">
+                            <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                              Q{qIndex + 1}: {question.question || question.title}
+                            </h4>
+                            <p className="text-sm">
+                              {Array.isArray(answer) ? answer.join(', ') : answer || 'No response'}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -564,30 +550,15 @@ const SurveyReport = () => {
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-4">
-          {responses.length === 0 ? (
-            <Card className="p-8 text-center">
-              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Timeline Data</h3>
-              <p className="text-muted-foreground">Response timeline will appear here once people start responding to your survey.</p>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Response Timeline (Last 14 Days)</CardTitle>
-                <CardDescription>Daily response count over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {getResponseTimeline().map((item) => (
-                    <div key={item.date} className="flex items-center justify-between p-2 border rounded">
-                      <span className="text-sm">{new Date(item.date).toLocaleDateString()}</span>
-                      <Badge variant="outline">{item.responses} responses</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle>Response Timeline</CardTitle>
+              <CardDescription>Daily response counts for the last 14 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponseTimelineChart timelineData={getResponseTimeline()} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
