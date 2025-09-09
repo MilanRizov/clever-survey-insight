@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Download, BarChart3, FileText, Calendar, Users } from 'lucide-react';
+import { ArrowLeft, Download, BarChart3, FileText, Calendar, Users, Brain, Heart, Meh, Frown } from 'lucide-react';
 
 interface Survey {
   id: string;
@@ -36,6 +36,16 @@ interface ResponseSummary {
   lastResponse: string;
 }
 
+interface TopicAnalysis {
+  topic: string;
+  count: number;
+  responses: {
+    text: string;
+    responseId: string;
+    sentiment: 'positive' | 'neutral' | 'negative';
+  }[];
+}
+
 const SurveyReport = () => {
   const { id } = useParams<{ id: string }>();
   const { user, loading: authLoading } = useAuth();
@@ -45,6 +55,8 @@ const SurveyReport = () => {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<SurveyResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [topicAnalysis, setTopicAnalysis] = useState<Record<string, TopicAnalysis[]>>({});
+  const [analyzingTopics, setAnalyzingTopics] = useState<Record<string, boolean>>({});
   const [summary, setSummary] = useState<ResponseSummary | null>(null);
 
   useEffect(() => {
@@ -112,6 +124,11 @@ const SurveyReport = () => {
           lastResponse
         });
       }
+
+      // Analyze open text questions
+      if (surveyData && responsesData) {
+        await analyzeOpenTextQuestions(surveyData, responsesData);
+      }
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -121,6 +138,44 @@ const SurveyReport = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const analyzeOpenTextQuestions = async (surveyData: any, responsesData: any[]) => {
+    const openTextQuestions = surveyData.questions.filter((q: any) => q.type === 'open-text');
+    
+    for (const question of openTextQuestions) {
+      const textResponses = responsesData
+        .map(response => ({
+          text: response.response_data[question.id],
+          responseId: response.id
+        }))
+        .filter(r => r.text && r.text.trim() !== '');
+
+      if (textResponses.length === 0) continue;
+
+      setAnalyzingTopics(prev => ({ ...prev, [question.id]: true }));
+
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-open-text', {
+          body: { textResponses }
+        });
+
+        if (error) {
+          console.error('Error analyzing topics:', error);
+          toast({
+            title: "Analysis Error",
+            description: `Failed to analyze topics for: ${question.title}`,
+            variant: "destructive",
+          });
+        } else {
+          setTopicAnalysis(prev => ({ ...prev, [question.id]: data.topics || [] }));
+        }
+      } catch (error) {
+        console.error('Error calling analysis function:', error);
+      } finally {
+        setAnalyzingTopics(prev => ({ ...prev, [question.id]: false }));
+      }
     }
   };
 
@@ -210,6 +265,28 @@ const SurveyReport = () => {
       .map(([date, count]) => ({ date, responses: count }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(-14); // Last 14 days
+  };
+
+  const getSentimentIcon = (sentiment: 'positive' | 'neutral' | 'negative') => {
+    switch (sentiment) {
+      case 'positive':
+        return <Heart className="h-4 w-4 text-green-500" />;
+      case 'negative':
+        return <Frown className="h-4 w-4 text-red-500" />;
+      default:
+        return <Meh className="h-4 w-4 text-yellow-500" />;
+    }
+  };
+
+  const getSentimentColor = (sentiment: 'positive' | 'neutral' | 'negative') => {
+    switch (sentiment) {
+      case 'positive':
+        return 'text-green-600 bg-green-50 border-green-200';
+      case 'negative':
+        return 'text-red-600 bg-red-50 border-red-200';
+      default:
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    }
   };
 
   if (loading || authLoading) {
@@ -333,7 +410,81 @@ const SurveyReport = () => {
                       <CardDescription>{question.question || question.title}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {chartData.length > 0 ? (
+                      {question.type === 'open-text' ? (
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground">
+                              {responses.filter(r => r.response_data[question.id]).length} responses
+                            </p>
+                            {analyzingTopics[question.id] && (
+                              <div className="flex items-center gap-2 text-sm text-blue-600">
+                                <Brain className="h-4 w-4 animate-pulse" />
+                                Analyzing topics...
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Topic Analysis Section */}
+                          {topicAnalysis[question.id] && topicAnalysis[question.id].length > 0 && (
+                            <div className="border rounded-lg p-4 bg-blue-50">
+                              <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                <Brain className="h-4 w-4" />
+                                AI Topic Analysis
+                              </h4>
+                              <div className="space-y-4">
+                                {topicAnalysis[question.id].map((topic, topicIdx) => (
+                                  <div key={topicIdx} className="bg-white rounded-md p-3 border">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h5 className="font-medium text-gray-900">{topic.topic}</h5>
+                                      <Badge variant="outline">{topic.count} responses</Badge>
+                                    </div>
+                                    <div className="space-y-2">
+                                      {topic.responses.map((response, responseIdx) => (
+                                        <div 
+                                          key={responseIdx} 
+                                          className={`p-2 rounded border ${getSentimentColor(response.sentiment)}`}
+                                        >
+                                          <div className="flex items-start gap-2">
+                                            {getSentimentIcon(response.sentiment)}
+                                            <div className="flex-1">
+                                              <p className="text-sm">{response.text}</p>
+                                              <div className="flex items-center gap-2 mt-1">
+                                                <Badge 
+                                                  variant="secondary" 
+                                                  className={`text-xs ${getSentimentColor(response.sentiment)}`}
+                                                >
+                                                  {response.sentiment}
+                                                </Badge>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* All Responses Section */}
+                          <div>
+                            <h4 className="font-medium mb-3">All Responses</h4>
+                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                              {responses
+                                .filter(response => response.response_data[question.id])
+                                .map((response, idx) => (
+                                  <div key={idx} className="p-3 bg-muted rounded-md">
+                                    <p className="text-sm">{response.response_data[question.id]}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {new Date(response.submitted_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : chartData.length > 0 ? (
                         <div className="space-y-6">
                           <div>
                             <h4 className="font-medium mb-4">Response Distribution</h4>
