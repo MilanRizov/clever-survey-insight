@@ -2,6 +2,15 @@ import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
+// Apply Highcharts license key if available
+if (process.env.HIGHCHARTS_LICENSE_KEY) {
+  Highcharts.setOptions({
+    credits: {
+      enabled: false
+    }
+  });
+}
+
 interface TimelineData {
   date: string;
   responses: number;

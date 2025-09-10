@@ -6,6 +6,15 @@ import HighchartsReact from 'highcharts-react-official';
 require('highcharts/highcharts-more')(Highcharts);
 require('highcharts/modules/accessibility')(Highcharts);
 
+// Apply Highcharts license key if available
+if (process.env.HIGHCHARTS_LICENSE_KEY) {
+  Highcharts.setOptions({
+    credits: {
+      enabled: false
+    }
+  });
+}
+
 interface ChartData {
   name: string;
   value: number;
