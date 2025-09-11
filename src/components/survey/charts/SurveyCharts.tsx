@@ -1,12 +1,8 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import HighchartsMore from 'highcharts/highcharts-more';
-import HighchartsAccessibility from 'highcharts/modules/accessibility';
-
-// Enable additional modules for better charts
-require('highcharts/highcharts-more')(Highcharts);
-require('highcharts/modules/accessibility')(Highcharts);
+import 'highcharts/highcharts-more';
+import 'highcharts/modules/accessibility';
 
 // Apply Highcharts license key if available
 if (process.env.HIGHCHARTS_LICENSE_KEY) {
