@@ -32,7 +32,7 @@ const menuItems = [
   { title: 'Surveys', url: '/surveys', icon: FileText },
   { title: 'Templates', url: '/templates', icon: Grid3X3 },
   { title: 'Reports', url: '/reports', icon: BarChart3 },
-  { title: 'Settings', url: '/settings', icon: Settings },
+  { title: 'Registered Users', url: '/settings/users', icon: Settings },
   { title: 'Support', url: '/support', icon: HelpCircle },
 ];
 
@@ -43,7 +43,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { toast } = useToast();
 
   const handleNavigation = (item: typeof menuItems[0]) => {
-    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates') {
+    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates' || item.url === '/settings/users') {
       navigate(item.url);
     } else {
       toast({

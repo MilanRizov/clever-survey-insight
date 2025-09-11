@@ -14,6 +14,7 @@ import SurveyPreview from "./pages/SurveyPreview";
 import EditSurvey from "./pages/EditSurvey";
 import PublicSurvey from "./pages/PublicSurvey";
 import SurveyReport from "./pages/SurveyReport";
+import RegisteredUsers from "./pages/RegisteredUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/surveys/:id/preview" element={<AppLayout><SurveyPreview /></AppLayout>} />
             <Route path="/surveys/:id/edit" element={<AppLayout><EditSurvey /></AppLayout>} />
             <Route path="/reports/:id" element={<AppLayout><SurveyReport /></AppLayout>} />
+            <Route path="/settings/users" element={<AppLayout><RegisteredUsers /></AppLayout>} />
             <Route path="/survey/:id" element={<PublicSurvey />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
