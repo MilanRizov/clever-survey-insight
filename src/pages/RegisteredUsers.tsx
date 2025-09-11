@@ -17,8 +17,8 @@ interface UserProfile {
   id: string;
   user_id: string;
   username: string | null;
+  email: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 const RegisteredUsers = () => {
@@ -148,11 +148,10 @@ const RegisteredUsers = () => {
                   <TableCell className="font-medium">
                     {user.username || 'No username'}
                   </TableCell>
-                  <TableCell className="font-mono text-sm text-muted-foreground">
-                    {user.user_id.slice(0, 8)}...
+                  <TableCell>
+                    {user.email || 'No email'}
                   </TableCell>
                   <TableCell>{formatDate(user.created_at)}</TableCell>
-                  <TableCell>{formatDate(user.updated_at)}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">Active</Badge>
                   </TableCell>
