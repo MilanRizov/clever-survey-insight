@@ -3,7 +3,12 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
 // Apply Highcharts license key if available
-if (process.env.HIGHCHARTS_LICENSE_KEY) {
+const hasHighchartsLicense =
+  typeof import.meta !== 'undefined' &&
+  (import.meta as any).env &&
+  (import.meta as any).env.HIGHCHARTS_LICENSE_KEY;
+
+if (hasHighchartsLicense) {
   Highcharts.setOptions({
     credits: {
       enabled: false
