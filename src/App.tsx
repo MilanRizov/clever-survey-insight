@@ -8,6 +8,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import MySurveys from "./pages/MySurveys";
+import Templates from "./pages/Templates";
 import Reports from "./pages/Reports";
 import SurveyPreview from "./pages/SurveyPreview";
 import EditSurvey from "./pages/EditSurvey";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<AppLayout><Index /></AppLayout>} />
             <Route path="/surveys" element={<AppLayout><MySurveys /></AppLayout>} />
+            <Route path="/templates" element={<AppLayout><Templates /></AppLayout>} />
             <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
             <Route path="/surveys/:id/preview" element={<AppLayout><SurveyPreview /></AppLayout>} />
             <Route path="/surveys/:id/edit" element={<AppLayout><EditSurvey /></AppLayout>} />

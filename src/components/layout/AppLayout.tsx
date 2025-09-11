@@ -20,6 +20,7 @@ import {
   Settings,
   HelpCircle,
   LayoutDashboard,
+  Grid3X3,
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -29,6 +30,7 @@ interface AppLayoutProps {
 const menuItems = [
   { title: 'Overview', url: '/', icon: LayoutDashboard },
   { title: 'Surveys', url: '/surveys', icon: FileText },
+  { title: 'Templates', url: '/templates', icon: Grid3X3 },
   { title: 'Reports', url: '/reports', icon: BarChart3 },
   { title: 'Settings', url: '/settings', icon: Settings },
   { title: 'Support', url: '/support', icon: HelpCircle },
@@ -41,7 +43,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { toast } = useToast();
 
   const handleNavigation = (item: typeof menuItems[0]) => {
-    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports') {
+    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates') {
       navigate(item.url);
     } else {
       toast({
