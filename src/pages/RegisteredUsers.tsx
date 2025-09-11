@@ -137,9 +137,8 @@ const RegisteredUsers = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Username</TableHead>
-                <TableHead>User ID</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Registration Date</TableHead>
-                <TableHead>Last Updated</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
