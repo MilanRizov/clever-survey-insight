@@ -5,7 +5,7 @@ import 'highcharts/highcharts-more';
 import 'highcharts/modules/accessibility';
 
 // Apply Highcharts license key if available
-if (process.env.HIGHCHARTS_LICENSE_KEY) {
+if (import.meta.env.VITE_HIGHCHARTS_LICENSE_KEY) {
   Highcharts.setOptions({
     credits: {
       enabled: false
