@@ -1,6 +1,8 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import HighchartsMore from 'highcharts/highcharts-more';
+import HighchartsAccessibility from 'highcharts/modules/accessibility';
 
 // Enable additional modules for better charts
 require('highcharts/highcharts-more')(Highcharts);
