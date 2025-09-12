@@ -87,6 +87,14 @@ const templateCategories = [
         questions: 16,
         estimatedTime: '6-8 min',
         popular: true
+      },
+      {
+        id: 'product-discovery',
+        title: 'Product Discovery Survey',
+        description: 'Discover customer needs and validate product ideas',
+        questions: 7,
+        estimatedTime: '3-4 min',
+        popular: false
       }
     ]
   },
