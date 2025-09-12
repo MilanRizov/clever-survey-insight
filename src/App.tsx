@@ -12,6 +12,7 @@ import Templates from "./pages/Templates";
 import Reports from "./pages/Reports";
 import SurveyPreview from "./pages/SurveyPreview";
 import EditSurvey from "./pages/EditSurvey";
+import CreateSurvey from "./pages/CreateSurvey";
 import PublicSurvey from "./pages/PublicSurvey";
 import SurveyReport from "./pages/SurveyReport";
 import RegisteredUsers from "./pages/RegisteredUsers";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<AppLayout><Index /></AppLayout>} />
             <Route path="/surveys" element={<AppLayout><MySurveys /></AppLayout>} />
+            <Route path="/surveys/create" element={<AppLayout><CreateSurvey /></AppLayout>} />
             <Route path="/templates" element={<AppLayout><Templates /></AppLayout>} />
             <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
             <Route path="/surveys/:id/preview" element={<AppLayout><SurveyPreview /></AppLayout>} />

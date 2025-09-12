@@ -1,4 +1,5 @@
 import React from 'react';
+import { getTemplateById } from '@/data/templates';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -172,9 +173,12 @@ const Templates: React.FC = () => {
   const navigate = useNavigate();
 
   const handleUseTemplate = (templateId: string) => {
-    // For now, navigate to create survey page
-    // In the future, this would pre-populate the survey builder with template data
-    navigate('/surveys/create');
+    const template = getTemplateById(templateId);
+    if (template) {
+      navigate('/surveys/create', { state: { template } });
+    } else {
+      navigate('/surveys/create');
+    }
   };
 
   return (
