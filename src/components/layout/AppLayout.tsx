@@ -28,19 +28,24 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { title: 'Overview', url: '/', icon: LayoutDashboard },
-  { title: 'Surveys', url: '/surveys', icon: FileText },
-  { title: 'Templates', url: '/templates', icon: Grid3X3 },
-  { title: 'Reports', url: '/reports', icon: BarChart3 },
-  { title: 'Registered Users', url: '/settings/users', icon: Settings },
-  { title: 'Support', url: '/support', icon: HelpCircle },
+  { title: 'Overview', url: '/', icon: LayoutDashboard, roles: ['system_admin', 'survey_generator'] },
+  { title: 'Surveys', url: '/surveys', icon: FileText, roles: ['system_admin', 'survey_generator'] },
+  { title: 'Templates', url: '/templates', icon: Grid3X3, roles: ['system_admin', 'survey_generator'] },
+  { title: 'Reports', url: '/reports', icon: BarChart3, roles: ['system_admin', 'survey_generator'] },
+  { title: 'Registered Users', url: '/settings/users', icon: Settings, roles: ['system_admin'] },
+  { title: 'Support', url: '/support', icon: HelpCircle, roles: ['system_admin'] },
 ];
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { signOut } = useAuth();
+  const { signOut, userRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => 
+    !userRole || item.roles.includes(userRole)
+  );
 
   const handleNavigation = (item: typeof menuItems[0]) => {
     if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates' || item.url === '/settings/users') {
@@ -65,7 +70,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <SidebarGroupLabel>Menu</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {menuItems.map((item) => (
+                  {filteredMenuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild
@@ -92,7 +97,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <header className="border-b border-border bg-card">
             <div className="px-6 py-4 flex justify-between items-center">
               <h1 className="text-xl font-semibold text-foreground">
-                {menuItems.find(item => item.url === location.pathname)?.title || 'IntelligentSurvey'}
+                {filteredMenuItems.find(item => item.url === location.pathname)?.title || 'IntelligentSurvey'}
               </h1>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-muted-foreground">
