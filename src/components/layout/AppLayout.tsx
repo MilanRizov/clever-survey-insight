@@ -21,6 +21,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   Grid3X3,
+  TrendingUp,
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -32,6 +33,7 @@ const menuItems = [
   { title: 'Surveys', url: '/surveys', icon: FileText, roles: ['system_admin', 'survey_generator'] },
   { title: 'Templates', url: '/templates', icon: Grid3X3, roles: ['system_admin', 'survey_generator'] },
   { title: 'Reports', url: '/reports', icon: BarChart3, roles: ['system_admin', 'survey_generator'] },
+  { title: 'Global Analytics', url: '/analytics/global', icon: TrendingUp, roles: ['system_admin'] },
   { title: 'Registered Users', url: '/settings/users', icon: Settings, roles: ['system_admin'] },
   { title: 'Support', url: '/support', icon: HelpCircle, roles: ['system_admin'] },
 ];
@@ -48,7 +50,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   );
 
   const handleNavigation = (item: typeof menuItems[0]) => {
-    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates' || item.url === '/settings/users') {
+    if (item.url === '/' || item.url === '/surveys' || item.url === '/reports' || item.url === '/templates' || item.url === '/settings/users' || item.url === '/analytics/global') {
       navigate(item.url);
     } else {
       toast({
