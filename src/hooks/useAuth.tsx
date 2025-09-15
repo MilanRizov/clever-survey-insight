@@ -75,57 +75,67 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (emailOrUsername: string, password: string) => {
     try {
-      // Check if it's an email or username
-      const isEmail = emailOrUsername.includes('@');
+      // Ensure it's treated as an email
       let email = emailOrUsername;
-      
-      if (!isEmail) {
-        // If it's a username, find the email from profiles table
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('username', emailOrUsername)
-          .single();
-          
-        if (profileError || !profile) {
-          toast({
-            title: "Login failed",
-            description: "Username not found",
-            variant: "destructive",
-          });
-          return { error: { message: "Username not found" } };
-        }
-        
-        // Get the email from auth.users (but we can't query that directly)
-        // So we'll try a different approach - create a beta user if it's the specific username
-        if (emailOrUsername === 'intelligentSurvey') {
-          email = 'intelligentsurvey@beta.com';
-        }
+      if (!emailOrUsername.includes('@')) {
+        // If no @ symbol, treat it as username and convert to email format
+        email = `${emailOrUsername}@prototype.com`;
       }
       
-      const { error } = await supabase.auth.signInWithPassword({
+      // First try to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
+      if (signInError) {
+        // If sign in fails, automatically create the account
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              username: emailOrUsername,
+            },
+          },
         });
-      } else {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
+
+        if (signUpError) {
+          toast({
+            title: "Access failed",
+            description: signUpError.message,
+            variant: "destructive",
+          });
+          return { error: signUpError };
+        } else {
+          // Account created, now sign in
+          const { error: newSignInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          
+          if (newSignInError) {
+            toast({
+              title: "Access failed",
+              description: newSignInError.message,
+              variant: "destructive",
+            });
+            return { error: newSignInError };
+          }
+        }
       }
 
-      return { error };
+      toast({
+        title: "Welcome to Survey Generator!",
+        description: "You now have access to create and manage surveys.",
+      });
+
+      return { error: null };
     } catch (err) {
       const error = err as Error;
       toast({
-        title: "Login failed",
+        title: "Access failed",
         description: error.message,
         variant: "destructive",
       });

@@ -32,8 +32,8 @@ export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Welcome to IntelligentSurvey</CardTitle>
-        <CardDescription>Sign in to your account to continue</CardDescription>
+        <CardTitle className="text-2xl font-bold">Access Survey Generator</CardTitle>
+        <CardDescription>Enter any email and password to get instant access</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -45,7 +45,7 @@ export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
               value={emailOrUsername}
               onChange={(e) => setEmailOrUsername(e.target.value)}
               required
-              placeholder="Enter your email or username"
+              placeholder="Enter any email or username"
             />
           </div>
           <div className="space-y-2">
@@ -56,12 +56,12 @@ export const LoginForm = ({ onToggleMode }: LoginFormProps) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Enter any password"
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In
+            Get Access
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
