@@ -31,6 +31,18 @@ const Auth = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             This is a working Survey prototype by Milan Rizov. Log in with any email and password to create surveys, share links, and view automatic reports with AI insights. Need super admin rights? Request them via the form below.
           </p>
+          <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+            For questions or to connect, feel free to reach out to me on{' '}
+            <a 
+              href="https://www.linkedin.com/in/milan-rizov/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              LinkedIn
+            </a>
+            .
+          </p>
         </div>
         {isLogin ? (
           <LoginForm onToggleMode={() => setIsLogin(false)} />
