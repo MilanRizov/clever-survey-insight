@@ -26,11 +26,18 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      {isLogin ? (
-        <LoginForm onToggleMode={() => setIsLogin(false)} />
-      ) : (
-        <SignUpForm onToggleMode={() => setIsLogin(true)} />
-      )}
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center p-4 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            This is a working Survey prototype by Milan Rizov. Log in with any email and password to create surveys, share links, and view automatic reports with AI insights. Need super admin rights? Request them via the form below.
+          </p>
+        </div>
+        {isLogin ? (
+          <LoginForm onToggleMode={() => setIsLogin(false)} />
+        ) : (
+          <SignUpForm onToggleMode={() => setIsLogin(true)} />
+        )}
+      </div>
     </div>
   );
 };
