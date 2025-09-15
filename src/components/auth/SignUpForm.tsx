@@ -36,6 +36,11 @@ export const SignUpForm = ({ onToggleMode }: SignUpFormProps) => {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
         <CardDescription>Sign up to start creating surveys</CardDescription>
+        <div className="mt-4 p-4 bg-muted/50 rounded-lg text-left">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            This is a working prototype. Please enter any email and password to create your account — you'll be signed in automatically. After signing up, you can create a survey and generate a shareable link. Once responses are collected, a report will be created automatically, including an AI-powered analysis of open-ended questions. If you need super admin rights, request them via the form below.
+          </p>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
