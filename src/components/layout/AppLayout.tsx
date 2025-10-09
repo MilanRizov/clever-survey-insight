@@ -39,7 +39,7 @@ const menuItems = [
 ];
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { signOut, userRole } = useAuth();
+  const { signOut, userRole, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -103,7 +103,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               </h1>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-muted-foreground">
-                  Welcome back!
+                  {user?.email || user?.user_metadata?.username || 'Welcome back!'}
                 </span>
                 <Button variant="outline" onClick={signOut}>
                   Sign Out
