@@ -37,14 +37,25 @@ const Reports = () => {
 
   const fetchReports = async () => {
     try {
-      // Get all surveys for the user
+      setIsLoading(true);
+      
+      // Get all surveys for the user with response counts in a single query
       const { data: surveys, error: surveysError } = await supabase
         .from('surveys')
-        .select('id, title, created_at')
+        .select(`
+          id, 
+          title, 
+          created_at,
+          survey_responses (
+            id,
+            submitted_at
+          )
+        `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (surveysError) {
+        console.error('Error fetching surveys:', surveysError);
         throw surveysError;
       }
 
@@ -53,32 +64,23 @@ const Reports = () => {
         return;
       }
 
-      // Get actual response counts for each survey
-      const reportsData: SurveyReport[] = await Promise.all(
-        surveys.map(async (survey) => {
-          const { data: responseData, error: responseError } = await supabase
-            .from('survey_responses')
-            .select('id, submitted_at')
-            .eq('survey_id', survey.id);
+      // Transform the data
+      const reportsData: SurveyReport[] = surveys.map((survey: any) => {
+        const responses = survey.survey_responses || [];
+        const latestResponse = responses.length > 0 
+          ? responses.sort((a: any, b: any) => 
+              new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+            )[0].submitted_at
+          : null;
 
-          if (responseError) {
-            console.error('Error fetching responses:', responseError);
-          }
-
-          const responses = responseData || [];
-          const latestResponse = responses.length > 0 
-            ? responses.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime())[0].submitted_at
-            : null;
-
-          return {
-            id: survey.id,
-            title: survey.title,
-            created_at: survey.created_at,
-            response_count: responses.length,
-            latest_response: latestResponse || survey.created_at
-          };
-        })
-      );
+        return {
+          id: survey.id,
+          title: survey.title,
+          created_at: survey.created_at,
+          response_count: responses.length,
+          latest_response: latestResponse || survey.created_at
+        };
+      });
 
       // Filter to only show surveys with responses
       const surveysWithResponses = reportsData.filter(survey => survey.response_count > 0);
