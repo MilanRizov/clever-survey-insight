@@ -20,7 +20,8 @@ const MySurveys = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [mySurveys, setMySurveys] = useState<Survey[]>([]);
+  const [otherSurveys, setOtherSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -48,7 +49,9 @@ const MySurveys = () => {
         return;
       }
 
-      setSurveys(data || []);
+      const allSurveys = data || [];
+      setMySurveys(allSurveys.filter(survey => survey.user_id === user?.id));
+      setOtherSurveys(allSurveys.filter(survey => survey.user_id !== user?.id));
     } catch (err) {
       console.error('Error fetching surveys:', err);
     } finally {
@@ -115,7 +118,7 @@ const MySurveys = () => {
             <p className="mt-2 text-muted-foreground">Loading surveys...</p>
           </div>
         </div>
-      ) : surveys.length === 0 ? (
+      ) : mySurveys.length === 0 && otherSurveys.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
             <FileText className="w-8 h-8 text-muted-foreground" />
@@ -129,88 +132,184 @@ const MySurveys = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-6">
-          {surveys.map((survey) => (
-            <Card key={survey.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{survey.title}</h3>
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <FileText className="w-4 h-4" />
-                        Created {new Date(survey.created_at).toLocaleDateString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FileText className="w-4 h-4" />
-                        {Array.isArray(survey.questions) ? survey.questions.length : 0} questions
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/surveys/${survey.id}/preview`)}
-                      className="flex items-center gap-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/surveys/${survey.id}/edit`)}
-                      className="flex items-center gap-2"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                      Edit
-                    </Button>
-                  </div>
-                </div>
+        <div className="space-y-8">
+          {/* My Surveys Section */}
+          {mySurveys.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">My Surveys</h2>
+                <p className="text-sm text-muted-foreground">Surveys created by you</p>
+              </div>
+              <div className="grid gap-6">
+                {mySurveys.map((survey) => (
+                  <Card key={survey.id} className="hover:shadow-md transition-shadow border-primary/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">{survey.title}</h3>
+                          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              Created {new Date(survey.created_at).toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FileText className="w-4 h-4" />
+                              {Array.isArray(survey.questions) ? survey.questions.length : 0} questions
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/surveys/${survey.id}/preview`)}
+                            className="flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(`/surveys/${survey.id}/edit`)}
+                            className="flex items-center gap-2"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            Edit
+                          </Button>
+                        </div>
+                      </div>
 
-                {/* Survey Stats - Mock data for enhanced UI */}
-                <div className="grid grid-cols-4 gap-6 pt-4 border-t border-border">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-foreground mb-1">0</div>
-                    <div className="text-sm text-muted-foreground">Total Responses</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-1">0%</div>
-                    <div className="text-sm text-muted-foreground">Completion Rate</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">0m</div>
-                    <div className="text-sm text-muted-foreground">Avg. Time</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">-</div>
-                    <div className="text-sm text-muted-foreground">Last Response</div>
-                  </div>
-                </div>
+                      {/* Survey Stats - Mock data for enhanced UI */}
+                      <div className="grid grid-cols-4 gap-6 pt-4 border-t border-border">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-foreground mb-1">0</div>
+                          <div className="text-sm text-muted-foreground">Total Responses</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-600 mb-1">0%</div>
+                          <div className="text-sm text-muted-foreground">Completion Rate</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600 mb-1">0m</div>
+                          <div className="text-sm text-muted-foreground">Avg. Time</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-purple-600 mb-1">-</div>
+                          <div className="text-sm text-muted-foreground">Last Response</div>
+                        </div>
+                      </div>
 
-                {/* Public Link */}
-                <div className="mt-6 pt-4 border-t border-border">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-muted-foreground">Public survey link:</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyPublicLink(survey.id)}
-                      className="flex items-center gap-2"
-                    >
-                      <Copy className="w-4 h-4" />
-                      {copiedId === survey.id ? 'Copied!' : 'Copy'}
-                    </Button>
-                  </div>
-                  <div className="mt-2 p-3 bg-muted rounded-lg">
-                    <code className="text-sm text-muted-foreground break-all">
-                      {`${window.location.origin}/survey/${survey.id}`}
-                    </code>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                      {/* Public Link */}
+                      <div className="mt-6 pt-4 border-t border-border">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">Public survey link:</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyPublicLink(survey.id)}
+                            className="flex items-center gap-2"
+                          >
+                            <Copy className="w-4 h-4" />
+                            {copiedId === survey.id ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </div>
+                        <div className="mt-2 p-3 bg-muted rounded-lg">
+                          <code className="text-sm text-muted-foreground break-all">
+                            {`${window.location.origin}/survey/${survey.id}`}
+                          </code>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Surveys Section */}
+          {otherSurveys.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">All Surveys</h2>
+                <p className="text-sm text-muted-foreground">Surveys created by other users</p>
+              </div>
+              <div className="grid gap-6">
+                {otherSurveys.map((survey) => (
+                  <Card key={survey.id} className="hover:shadow-md transition-shadow border-muted">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">{survey.title}</h3>
+                          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              Created {new Date(survey.created_at).toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FileText className="w-4 h-4" />
+                              {Array.isArray(survey.questions) ? survey.questions.length : 0} questions
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/surveys/${survey.id}/preview`)}
+                            className="flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Survey Stats - Mock data for enhanced UI */}
+                      <div className="grid grid-cols-4 gap-6 pt-4 border-t border-border">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-foreground mb-1">0</div>
+                          <div className="text-sm text-muted-foreground">Total Responses</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-600 mb-1">0%</div>
+                          <div className="text-sm text-muted-foreground">Completion Rate</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600 mb-1">0m</div>
+                          <div className="text-sm text-muted-foreground">Avg. Time</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-purple-600 mb-1">-</div>
+                          <div className="text-sm text-muted-foreground">Last Response</div>
+                        </div>
+                      </div>
+
+                      {/* Public Link */}
+                      <div className="mt-6 pt-4 border-t border-border">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">Public survey link:</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyPublicLink(survey.id)}
+                            className="flex items-center gap-2"
+                          >
+                            <Copy className="w-4 h-4" />
+                            {copiedId === survey.id ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </div>
+                        <div className="mt-2 p-3 bg-muted rounded-lg">
+                          <code className="text-sm text-muted-foreground break-all">
+                            {`${window.location.origin}/survey/${survey.id}`}
+                          </code>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
