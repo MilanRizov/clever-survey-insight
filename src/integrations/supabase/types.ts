@@ -79,6 +79,47 @@ export type Database = {
           },
         ]
       }
+      survey_topic_analysis: {
+        Row: {
+          analyzed_at: string
+          created_at: string
+          id: string
+          question_id: string
+          response_count: number
+          survey_id: string
+          topics: Json
+          updated_at: string
+        }
+        Insert: {
+          analyzed_at?: string
+          created_at?: string
+          id?: string
+          question_id: string
+          response_count: number
+          survey_id: string
+          topics?: Json
+          updated_at?: string
+        }
+        Update: {
+          analyzed_at?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          response_count?: number
+          survey_id?: string
+          topics?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_topic_analysis_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       surveys: {
         Row: {
           created_at: string

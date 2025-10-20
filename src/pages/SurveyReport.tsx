@@ -160,7 +160,11 @@ const SurveyReport = () => {
 
       try {
         const { data, error } = await supabase.functions.invoke('analyze-open-text', {
-          body: { textResponses }
+          body: { 
+            surveyId: surveyData.id,
+            questionId: question.id,
+            textResponses 
+          }
         });
 
         if (error) {

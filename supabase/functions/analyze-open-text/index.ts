@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,10 +29,35 @@ serve(async (req) => {
   }
 
   try {
-    const { textResponses }: { textResponses: TextResponse[] } = await req.json();
+    const { surveyId, questionId, textResponses }: { 
+      surveyId: string; 
+      questionId: string; 
+      textResponses: TextResponse[] 
+    } = await req.json();
     
     if (!textResponses || textResponses.length === 0) {
       return new Response(JSON.stringify({ topics: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check for cached analysis
+    const { data: cachedAnalysis } = await supabase
+      .from('survey_topic_analysis')
+      .select('*')
+      .eq('survey_id', surveyId)
+      .eq('question_id', questionId)
+      .single();
+
+    // If cached analysis exists and response count matches, return it
+    if (cachedAnalysis && cachedAnalysis.response_count === textResponses.length) {
+      console.log('Returning cached analysis');
+      return new Response(JSON.stringify({ topics: cachedAnalysis.topics }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -141,6 +167,21 @@ Guidelines:
         }))
       }];
     }
+
+    // Store or update the analysis in the database
+    await supabase
+      .from('survey_topic_analysis')
+      .upsert({
+        survey_id: surveyId,
+        question_id: questionId,
+        response_count: textResponses.length,
+        topics: topics,
+        analyzed_at: new Date().toISOString()
+      }, {
+        onConflict: 'survey_id,question_id'
+      });
+
+    console.log('Analysis cached successfully');
 
     return new Response(JSON.stringify({ topics }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
