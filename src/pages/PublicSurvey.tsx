@@ -122,18 +122,39 @@ const PublicSurvey = () => {
 
     setSubmitting(true);
     try {
-      // Insert response into database
-      const { error } = await supabase
-        .from('survey_responses')
-        .insert({
+      // Use edge function for server-side validation and submission
+      const { data, error } = await supabase.functions.invoke('validate-survey-response', {
+        body: {
           survey_id: id,
           response_data: responses,
-          ip_address: null, // Could be captured on server-side if needed
           user_agent: navigator.userAgent
-        });
+        }
+      });
 
       if (error) {
-        throw error;
+        console.error('Error submitting survey:', error);
+        
+        // Handle specific error codes
+        if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+          toast({
+            title: "Too many submissions",
+            description: "Please wait before submitting again.",
+            variant: "destructive",
+          });
+        } else if (error.message?.includes('VALIDATION_ERROR')) {
+          toast({
+            title: "Invalid response data",
+            description: "Please check your responses and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Submission failed",
+            description: "Please try again later.",
+            variant: "destructive",
+          });
+        }
+        return;
       }
 
       setSubmitted(true);
@@ -248,12 +269,18 @@ const PublicSurvey = () => {
                 )}
 
                 {question.type === 'open-text' && (
-                  <Textarea
-                    placeholder="Your answer..."
-                    value={responses[question.id] || ''}
-                    onChange={(e) => handleResponseChange(question.id, e.target.value)}
-                    className="min-h-[100px]"
-                  />
+                  <div className="space-y-2">
+                    <Textarea
+                      placeholder="Your answer..."
+                      value={responses[question.id] || ''}
+                      onChange={(e) => handleResponseChange(question.id, e.target.value)}
+                      className="min-h-[100px]"
+                      maxLength={5000}
+                    />
+                    <p className="text-xs text-muted-foreground text-right">
+                      {(responses[question.id] || '').length}/5000 characters
+                    </p>
+                  </div>
                 )}
               </div>
             ))}
