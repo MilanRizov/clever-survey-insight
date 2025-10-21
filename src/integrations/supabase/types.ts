@@ -74,6 +74,13 @@ export type Database = {
             foreignKeyName: "survey_responses_survey_id_fkey"
             columns: ["survey_id"]
             isOneToOne: false
+            referencedRelation: "public_surveys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
             referencedRelation: "surveys"
             referencedColumns: ["id"]
           },
@@ -111,6 +118,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "survey_topic_analysis_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "public_surveys"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "survey_topic_analysis_survey_id_fkey"
             columns: ["survey_id"]
@@ -170,7 +184,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_surveys: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          questions: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          questions?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          questions?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {
