@@ -45,7 +45,7 @@ const PublicSurvey = () => {
   const fetchSurvey = async () => {
     try {
       const { data, error } = await supabase
-        .from('surveys')
+        .from('public_surveys')
         .select('*')
         .eq('id', id)
         .single();
