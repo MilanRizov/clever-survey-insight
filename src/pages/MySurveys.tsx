@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Copy, Check, Eye, Edit3, Calendar } from 'lucide-react';
+import { FileText, Copy, Check, Eye, Edit3, Calendar, Globe, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
 interface Survey {
@@ -14,6 +15,7 @@ interface Survey {
   created_at: string;
   updated_at: string;
   user_id: string;
+  is_published: boolean;
 }
 
 const MySurveys = () => {
@@ -59,15 +61,51 @@ const MySurveys = () => {
     }
   };
 
-  const copyPublicLink = async (surveyId: string) => {
+  const togglePublish = async (surveyId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('surveys')
+        .update({ is_published: !currentStatus })
+        .eq('id', surveyId);
+
+      if (error) throw error;
+
+      toast({
+        title: !currentStatus ? "Survey published!" : "Survey unpublished",
+        description: !currentStatus 
+          ? "Your survey is now accessible via the public link" 
+          : "Your survey is no longer accessible via the public link",
+      });
+
+      fetchSurveys(); // Refresh the list
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update survey status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const copyPublicLink = async (surveyId: string, isPublished: boolean) => {
     const publicLink = `${window.location.origin}/survey/${surveyId}`;
+    
+    if (!isPublished) {
+      toast({
+        title: "Survey not published",
+        description: "This survey is not published yet. Recipients won't be able to access it.",
+        variant: "destructive",
+      });
+    }
     
     try {
       await navigator.clipboard.writeText(publicLink);
       setCopiedId(surveyId);
       toast({
         title: "Link copied!",
-        description: "Public survey link copied to clipboard",
+        description: isPublished 
+          ? "Public survey link copied to clipboard" 
+          : "Link copied, but remember to publish the survey first",
       });
       
       setTimeout(() => setCopiedId(null), 2000);
@@ -146,7 +184,16 @@ const MySurveys = () => {
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-foreground mb-2">{survey.title}</h3>
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-semibold text-foreground">{survey.title}</h3>
+                            <Badge variant={survey.is_published ? "default" : "secondary"}>
+                              {survey.is_published ? (
+                                <><Globe className="w-3 h-3 mr-1" /> Published</>
+                              ) : (
+                                <><Lock className="w-3 h-3 mr-1" /> Draft</>
+                              )}
+                            </Badge>
+                          </div>
                           <div className="flex items-center gap-6 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="w-4 h-4" />
@@ -159,6 +206,18 @@ const MySurveys = () => {
                           </div>
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            variant={survey.is_published ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => togglePublish(survey.id, survey.is_published)}
+                            className="flex items-center gap-2"
+                          >
+                            {survey.is_published ? (
+                              <><Lock className="w-4 h-4" /> Unpublish</>
+                            ) : (
+                              <><Globe className="w-4 h-4" /> Publish</>
+                            )}
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -206,7 +265,7 @@ const MySurveys = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyPublicLink(survey.id)}
+                            onClick={() => copyPublicLink(survey.id, survey.is_published)}
                             className="flex items-center gap-2"
                           >
                             <Copy className="w-4 h-4" />
@@ -291,7 +350,7 @@ const MySurveys = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyPublicLink(survey.id)}
+                            onClick={() => copyPublicLink(survey.id, true)}
                             className="flex items-center gap-2"
                           >
                             <Copy className="w-4 h-4" />
