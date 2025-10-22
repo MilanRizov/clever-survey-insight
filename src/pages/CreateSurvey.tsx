@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { SurveyBuilder, Question } from '@/components/survey/SurveyBuilder';
-import { FloatingAIButton } from '@/components/survey/FloatingAIButton';
+import { SurveyBuilder } from '@/components/survey/SurveyBuilder';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
@@ -10,7 +9,6 @@ const CreateSurvey = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
-  const [aiGeneratedSurvey, setAiGeneratedSurvey] = useState<{ title: string; questions: Question[] } | null>(null);
   
   // Get template data from navigation state
   const templateData = location.state?.template;
@@ -20,10 +18,6 @@ const CreateSurvey = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
-
-  const handleAIGenerated = (title: string, questions: Question[]) => {
-    setAiGeneratedSurvey({ title, questions });
-  };
 
   if (loading) {
     return (
@@ -60,17 +54,8 @@ const CreateSurvey = () => {
         </div>
 
         <div className="h-[calc(100vh-200px)]">
-          <SurveyBuilder 
-            key={aiGeneratedSurvey ? `ai-${Date.now()}` : templateData?.id || 'default'}
-            initialSurvey={aiGeneratedSurvey ? { 
-              id: '', 
-              title: aiGeneratedSurvey.title, 
-              questions: aiGeneratedSurvey.questions 
-            } : templateData}
-          />
+          <SurveyBuilder initialSurvey={templateData} />
         </div>
-
-        <FloatingAIButton onSurveyGenerated={handleAIGenerated} />
       </div>
     </div>
   );

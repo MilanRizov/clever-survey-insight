@@ -1,23 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { SurveyBuilder, Question } from '@/components/survey/SurveyBuilder';
-import { FloatingAIButton } from '@/components/survey/FloatingAIButton';
+import { SurveyBuilder } from '@/components/survey/SurveyBuilder';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [aiGeneratedSurvey, setAiGeneratedSurvey] = useState<{ title: string; questions: Question[] } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
-
-  const handleAIGenerated = (title: string, questions: Question[]) => {
-    setAiGeneratedSurvey({ title, questions });
-  };
 
   if (loading) {
     return (
@@ -46,17 +40,8 @@ const Index = () => {
       </div>
       
       <div className="h-[calc(100vh-12rem)]">
-        <SurveyBuilder 
-          key={aiGeneratedSurvey ? `ai-${Date.now()}` : 'default'}
-          initialSurvey={aiGeneratedSurvey ? { 
-            id: '', 
-            title: aiGeneratedSurvey.title, 
-            questions: aiGeneratedSurvey.questions 
-          } : undefined}
-        />
+        <SurveyBuilder />
       </div>
-
-      <FloatingAIButton onSurveyGenerated={handleAIGenerated} />
     </div>
   );
 };

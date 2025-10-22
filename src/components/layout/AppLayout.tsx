@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { FloatingAIButton } from '@/components/survey/FloatingAIButton';
+import { Question } from '@/components/survey/SurveyBuilder';
 import {
   Sidebar,
   SidebarContent,
@@ -58,6 +60,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         description: `${item.title} page is under development`,
       });
     }
+  };
+
+  const handleAIGenerated = (title: string, questions: Question[]) => {
+    // Navigate to create-survey page with AI-generated data
+    navigate('/create-survey', {
+      state: {
+        template: {
+          id: '',
+          title,
+          questions
+        }
+      }
+    });
   };
 
   return (
@@ -117,6 +132,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </main>
         </div>
       </div>
+      <FloatingAIButton onSurveyGenerated={handleAIGenerated} />
     </SidebarProvider>
   );
 };
