@@ -4,7 +4,6 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { QuestionTypePalette } from './QuestionTypePalette';
 import { QuestionCanvas } from './QuestionCanvas';
 import { SortableQuestion } from './SortableQuestion';
-import { AISurveyGenerator } from './AISurveyGenerator';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -108,11 +107,6 @@ export const SurveyBuilder = ({ initialSurvey }: SurveyBuilderProps = {}) => {
     setQuestions(prev => prev.filter(q => q.id !== id));
   };
 
-  const handleAIGenerated = (title: string, generatedQuestions: Question[]) => {
-    setSurveyTitle(title);
-    setQuestions(generatedQuestions);
-  };
-
   const saveSurvey = async () => {
     if (!user) {
       toast({
@@ -191,7 +185,6 @@ export const SurveyBuilder = ({ initialSurvey }: SurveyBuilderProps = {}) => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold">Survey Builder</h3>
               <div className="flex items-center gap-4">
-                <AISurveyGenerator onSurveyGenerated={handleAIGenerated} />
                 <div className="text-sm text-muted-foreground">
                   {questions.length} question{questions.length !== 1 ? 's' : ''}
                 </div>
