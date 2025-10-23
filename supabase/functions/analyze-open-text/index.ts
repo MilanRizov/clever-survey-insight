@@ -82,7 +82,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at analyzing survey responses to identify common topics and sentiment. 
+            content: `You are Survey Analyzer, an expert in survey data analysis. Identify key findings, themes, and actionable recommendations.
 
 Your task is to:
 1. Identify the main topics/themes that appear across the responses
