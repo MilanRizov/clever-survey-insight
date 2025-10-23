@@ -122,7 +122,7 @@ const SurveyReport = () => {
         setSummary({
           totalResponses,
           averageCompletionTime: 3.5, // Simulated - would calculate from actual timing data
-          completionRate: 85, // Simulated - would calculate from partial vs complete responses
+          completionRate: 100, // All responses in database are complete
           lastResponse
         });
       }

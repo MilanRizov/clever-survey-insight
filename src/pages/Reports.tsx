@@ -195,15 +195,11 @@ const Reports = () => {
                     <div className="text-sm text-muted-foreground">Total Responses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-1">
-                      {Math.round(Math.random() * 100)}%
-                    </div>
+                    <div className="text-2xl font-bold text-green-600 mb-1">100%</div>
                     <div className="text-sm text-muted-foreground">Completion Rate</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {Math.round(Math.random() * 5 + 1)}.{Math.round(Math.random() * 9)}m
-                    </div>
+                    <div className="text-2xl font-bold text-blue-600 mb-1">3.5m</div>
                     <div className="text-sm text-muted-foreground">Avg. Time</div>
                   </div>
                 </div>
