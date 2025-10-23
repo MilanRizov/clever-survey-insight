@@ -70,7 +70,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           id: '',
           title,
           questions
-        }
+        },
+        aiGenerated: true
       }
     });
   };

@@ -12,6 +12,7 @@ const CreateSurvey = () => {
   
   // Get template data from navigation state
   const templateData = location.state?.template;
+  const aiGenerated = location.state?.aiGenerated;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -45,10 +46,10 @@ const CreateSurvey = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {templateData ? `Create Survey from Template` : 'Create New Survey'}
+              {aiGenerated ? 'Generated using Survey AI Agent' : templateData ? `Create Survey from Template` : 'Create New Survey'}
             </h1>
             <p className="text-muted-foreground">
-              {templateData ? `Using template: ${templateData.title}` : 'Build your survey from scratch'}
+              {aiGenerated ? templateData?.title : templateData ? `Using template: ${templateData.title}` : 'Build your survey from scratch'}
             </p>
           </div>
         </div>
