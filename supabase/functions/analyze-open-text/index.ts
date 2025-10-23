@@ -150,7 +150,15 @@ Guidelines:
     // Parse the JSON response from AI
     let topics: TopicAnalysis[] = [];
     try {
-      const parsed = JSON.parse(analysisText);
+      // Remove markdown code blocks if present
+      let cleanedText = analysisText.trim();
+      if (cleanedText.startsWith('```json')) {
+        cleanedText = cleanedText.replace(/^```json\n/, '').replace(/\n```$/, '');
+      } else if (cleanedText.startsWith('```')) {
+        cleanedText = cleanedText.replace(/^```\n/, '').replace(/\n```$/, '');
+      }
+      
+      const parsed = JSON.parse(cleanedText);
       topics = parsed.topics || [];
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', parseError);
