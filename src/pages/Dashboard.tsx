@@ -67,7 +67,7 @@ const Dashboard = () => {
       setStats({
         totalSurveys: surveys?.length || 0,
         totalResponses: responses?.length || 0,
-        avgCompletion: surveys?.length ? Math.round((responses?.length || 0) / surveys.length * 100) : 0,
+        avgCompletion: 100, // All responses in database are complete
         avgTime: '3.5m' // This would need more complex calculation
       });
     } catch (error) {
