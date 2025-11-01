@@ -1,7 +1,5 @@
 project_id = "qvpbzafhnaauxdlzteza"
 
-[functions.analyze-open-text]
-verify_jwt = false
 
 [functions.validate-survey-response]
 verify_jwt = false
