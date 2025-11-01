@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_history: {
+        Row: {
+          completion_tokens: number | null
+          created_at: string
+          estimated_cost: number | null
+          id: string
+          metadata: Json | null
+          model: string
+          operation_type: string
+          prompt_tokens: number | null
+          total_tokens: number | null
+          user_id: string
+        }
+        Insert: {
+          completion_tokens?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          metadata?: Json | null
+          model: string
+          operation_type: string
+          prompt_tokens?: number | null
+          total_tokens?: number | null
+          user_id: string
+        }
+        Update: {
+          completion_tokens?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          metadata?: Json | null
+          model?: string
+          operation_type?: string
+          prompt_tokens?: number | null
+          total_tokens?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

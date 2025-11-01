@@ -29,6 +29,9 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
     const { surveyId, questionId, textResponses }: { 
       surveyId: string; 
       questionId: string; 
@@ -44,7 +47,18 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader || '' } }
+    });
+
+    // Get user from token
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Check for cached analysis
     const { data: cachedAnalysis } = await supabase
@@ -190,6 +204,26 @@ Guidelines:
       });
 
     console.log('Analysis cached successfully');
+
+    // Log AI usage
+    const usage = data.usage || {};
+    const estimatedCost = ((usage.prompt_tokens || 0) * 0.000001 + (usage.completion_tokens || 0) * 0.000002);
+    
+    await supabase.from('ai_usage_history').insert({
+      user_id: user.id,
+      operation_type: 'analyze_open_text',
+      model: 'google/gemini-2.5-flash',
+      prompt_tokens: usage.prompt_tokens || 0,
+      completion_tokens: usage.completion_tokens || 0,
+      total_tokens: usage.total_tokens || 0,
+      estimated_cost: estimatedCost,
+      metadata: { 
+        survey_id: surveyId,
+        question_id: questionId,
+        response_count: textResponses.length,
+        topics_identified: topics.length
+      }
+    });
 
     return new Response(JSON.stringify({ topics }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

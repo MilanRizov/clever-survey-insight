@@ -17,6 +17,7 @@ import PublicSurvey from "./pages/PublicSurvey";
 import SurveyReport from "./pages/SurveyReport";
 import RegisteredUsers from "./pages/RegisteredUsers";
 import GlobalAnalytics from "./pages/GlobalAnalytics";
+import AIUsageHistory from "./pages/AIUsageHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/surveys/:id/edit" element={<AppLayout><EditSurvey /></AppLayout>} />
             <Route path="/reports/:id" element={<AppLayout><SurveyReport /></AppLayout>} />
             <Route path="/analytics" element={<AppLayout><GlobalAnalytics /></AppLayout>} />
+            <Route path="/ai-usage" element={<AppLayout><AIUsageHistory /></AppLayout>} />
             <Route path="/users" element={<AppLayout><RegisteredUsers /></AppLayout>} />
             <Route path="/settings/users" element={<AppLayout><RegisteredUsers /></AppLayout>} />
             <Route path="/survey/:id" element={<PublicSurvey />} />

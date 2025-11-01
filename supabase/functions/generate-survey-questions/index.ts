@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +13,24 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader || '' } }
+    });
+
+    // Get user from token
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { prompt } = await req.json();
     
     if (!prompt || typeof prompt !== 'string') {
@@ -133,6 +152,21 @@ serve(async (req) => {
 
     const surveyData = JSON.parse(toolCall.function.arguments);
     console.log('Generated survey:', surveyData);
+
+    // Log AI usage
+    const usage = data.usage || {};
+    const estimatedCost = ((usage.prompt_tokens || 0) * 0.000001 + (usage.completion_tokens || 0) * 0.000002);
+    
+    await supabase.from('ai_usage_history').insert({
+      user_id: user.id,
+      operation_type: 'generate_survey_questions',
+      model: 'google/gemini-2.5-flash',
+      prompt_tokens: usage.prompt_tokens || 0,
+      completion_tokens: usage.completion_tokens || 0,
+      total_tokens: usage.total_tokens || 0,
+      estimated_cost: estimatedCost,
+      metadata: { prompt_length: prompt.length, questions_generated: surveyData.questions?.length || 0 }
+    });
 
     return new Response(
       JSON.stringify(surveyData),
